@@ -4,6 +4,7 @@ PROJECT_DIR := $(shell pwd)
 BIN_DIR := $(PROJECT_DIR)/venv/bin
 SRC_DIR := $(PROJECT_DIR)/anki
 NOTEBOOKS_DIR := $(PROJECT_DIR)/notebooks
+TESTS_DIR := $(PROJECT_DIR)/tests
 
 # Use PYTHONPATH and PATH from .env file if it exists
 -include .env
@@ -52,8 +53,8 @@ lint: venv/test-dependencies
 	$(BIN_DIR)/pylint $(SRC_DIR)
 	$(BIN_DIR)/mypy $(SRC_DIR)
 
-test: venv/test-dependencies
-	$(BIN_DIR)/pytest
+tests: venv/test-dependencies
+	$(BIN_DIR)/pytest --cov=$(SRC_DIR) --cov-report=term-missing $(TESTS_DIR)
 
 run:
 	$(BIN_DIR)/python -m $(SRC_DIR)

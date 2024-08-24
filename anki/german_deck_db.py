@@ -1,38 +1,60 @@
-"""Module for working with sqlite database for storing anki cards"""
+"""Module for working with SQLite database for storing Anki cards using SQLAlchemy."""
+
+from typing import List, Optional
 
 from sqlalchemy import Column, Integer, String, Text, create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import Session, declarative_base, sessionmaker
 
 # Base class for SQLAlchemy models
 Base = declarative_base()
 
 
-# SQLAlchemy model for a Note
 class NoteModel(Base):
+    """SQLAlchemy model representing a note in the German vocabulary deck."""
+
     __tablename__ = "notes"
-    id = Column(Integer, primary_key=True)
-    german_word = Column(String, nullable=False)
-    translation = Column(String, nullable=False)
-    german_sentence = Column(Text, nullable=False)
-    english_sentence = Column(Text, nullable=False)
-    other_forms = Column(String, nullable=True)
+
+    id: int = Column(Integer, primary_key=True)
+    german_word: str = Column(String, nullable=False)
+    translation: str = Column(String, nullable=False)
+    german_sentence: str = Column(Text, nullable=False)
+    english_sentence: str = Column(Text, nullable=False)
+    other_forms: Optional[str] = Column(String, nullable=True)
 
 
 class GermanDeckDatabase:
-    def __init__(self, db_file):
-        # Create the engine and bind it to the SQLite database file
-        self.engine = create_engine(f"sqlite:///{db_file}")
-        Base.metadata.create_all(self.engine)  # Create tables if they don't exist
+    """Class for managing the SQLite database containing the German vocabulary deck."""
 
-        # Create a configured "Session" class
+    def __init__(self, db_file: str) -> None:
+        """
+        Initialize the GermanDeckDatabase with the given SQLite database file.
+
+        Args:
+            db_file (str): The SQLite database file path.
+        """
+        self.engine = create_engine(f"sqlite:///{db_file}")
+        Base.metadata.create_all(self.engine)
         self.Session = sessionmaker(bind=self.engine)
 
     def add_note(
-        self, german_word, translation, german_sentence, english_sentence, other_forms
-    ):
-        """Add a new note to the database."""
-        session = self.Session()
+        self,
+        german_word: str,
+        translation: str,
+        german_sentence: str,
+        english_sentence: str,
+        other_forms: Optional[str] = None,
+    ) -> None:
+        """
+        Add a new note to the database.
+
+        Args:
+            german_word (str): The German word to add.
+            translation (str): The English translation of the German word.
+            german_sentence (str): An example sentence in German.
+            english_sentence (str): The English translation of the German sentence.
+            other_forms (Optional[str]): Other forms of the German word, if any.
+        """
+        session: Session = self.Session()
         new_note = NoteModel(
             german_word=german_word,
             translation=translation,
@@ -44,10 +66,15 @@ class GermanDeckDatabase:
         session.commit()
         session.close()
 
-    def load_notes(self):
-        """Load all notes from the database."""
-        session = self.Session()
-        notes = session.query(NoteModel).all()
+    def load_notes(self) -> List[NoteModel]:
+        """
+        Load all notes from the database.
+
+        Returns:
+            List[NoteModel]: A list of all notes in the database.
+        """
+        session: Session = self.Session()
+        notes: List[NoteModel] = session.query(NoteModel).all()
         session.close()
         return notes
 
