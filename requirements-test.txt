@@ -1,0 +1,9 @@
+pytest
+flake8
+pylint
+mypy
+black[jupyter]
+isort
+autoflake
+ruff
+nbqa

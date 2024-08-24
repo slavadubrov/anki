@@ -1,0 +1,4 @@
+"""Module with constants"""
+
+GERMAN_MODEL_ID = 3205940011
+GERMAN_DECK_ID = 2059400110
